@@ -1,0 +1,32 @@
+{
+  "name": "booklib",
+  "version": "1.0.0",
+  "description": "Book library",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "live-server",
+    "build": "rollup -c --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gnabaev/booklib-html-css-js.git"
+  },
+  "keywords": [
+    "book"
+  ],
+  "author": "German Nabaev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gnabaev/booklib-html-css-js/issues"
+  },
+  "homepage": "https://github.com/gnabaev/booklib-html-css-js#readme",
+  "devDependencies": {
+    "@eslint/js": "^9.2.0",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "eslint": "^9.2.0",
+    "globals": "^15.2.0",
+    "rollup": "^4.17.2",
+    "rollup-plugin-import-css": "^3.5.0"
+  }
+}
