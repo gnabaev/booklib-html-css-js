@@ -16,11 +16,11 @@ export class Search extends DivComponent {
         this.el.classList.add('search');
         this.el.innerHTML = `
             <div class="search__wrapper">
-                <input class="search__input" type="text" placeholder="Найти книгу или автора..." value="${this.state.searchQuery ? this.state.searchQuery : ''}"/>
-                <img src="/static/search.svg" alt="Иконка поиска" />
+                <input class="search__input" type="text" placeholder="Find a book or author..." value="${this.state.searchQuery ? this.state.searchQuery : ''}"/>
+                <img src="/static/search.svg" alt="Search icon" />
             </div>
             <button aria-label="Искать">
-                <img src="/static/search-white.svg" alt="Иконка поиска" />
+                <img src="/static/search-white.svg" alt="Search icon" />
             </button>
         `;
         this.el.querySelector('button').addEventListener('click', this.search.bind(this));

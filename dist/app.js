@@ -1127,54 +1127,22 @@
             this.el.classList.add('header');
             this.el.innerHTML = `
             <div>
-                <img src="/static/logo.svg" alt="Логотип" />
+                <img src="/static/logo.svg" alt="Logo" />
             </div>
             <div class="menu">
                 <a class="menu__item" href="#">
-                    <img src="/static/search.svg" alt="Иконка поиска" />
-                    Поиск книг
+                    <img src="/static/search.svg" alt="Search icon" />
+                    Book search
                 </a>
                 <a class="menu__item" href="#favorites">
-                    <img src="/static/favorites.svg" alt="Иконка избранного" />
-                    Избранное
+                    <img src="/static/favorites.svg" alt="Favorites icon" />
+                    Favorites
                     <div class="menu__counter">
                         ${this.appState.favorites.length}
                     </div>
                 </a>
             </div>
         `;
-            return this.el;
-        }
-    }
-
-    class Search extends DivComponent {
-        constructor(state) {
-            super();
-            this.state = state;
-        }
-
-        search() {
-            const value = this.el.querySelector('input').value;
-            this.state.searchQuery = value;
-        }
-
-        render() {
-            this.el.classList.add('search');
-            this.el.innerHTML = `
-            <div class="search__wrapper">
-                <input class="search__input" type="text" placeholder="Найти книгу или автора..." value="${this.state.searchQuery ? this.state.searchQuery : ''}"/>
-                <img src="/static/search.svg" alt="Иконка поиска" />
-            </div>
-            <button aria-label="Искать">
-                <img src="/static/search-white.svg" alt="Иконка поиска" />
-            </button>
-        `;
-            this.el.querySelector('button').addEventListener('click', this.search.bind(this));
-            this.el.querySelector('input').addEventListener('keydown', (event) => {
-                if (event.code === 'Enter') {
-                    this.search();
-                }
-            });
             return this.el;
         }
     }
@@ -1201,17 +1169,17 @@
             );
             this.el.innerHTML = `
             <div class="card__image">
-                <img src="https://covers.openlibrary.org/b/olid/${this.cardState.cover_edition_key}-M.jpg" alt="Обложка карточки" />
+                <img src="https://covers.openlibrary.org/b/olid/${this.cardState.cover_edition_key}-M.jpg" alt="Сard cover" />
             </div>
             <div class="card__info">
                 <div class="card__tag">
-                    ${this.cardState.subject ? this.cardState.subject[0] : 'Не задано'}
+                    ${this.cardState.subject ? this.cardState.subject[0] : 'Not specified'}
                 </div>
                 <div class="card__name">
                     ${this.cardState.title}
                 </div>
                 <div class="card__author">
-                ${this.cardState.author_name ? this.cardState.author_name[0] : 'Не задано'}
+                ${this.cardState.author_name ? this.cardState.author_name[0] : 'Not specified'}
                 </div>
                 <div class="card__footer">
                     <button class="button__add ${existInFavorites ? 'button__active' : ''}">
@@ -1238,17 +1206,82 @@
 
         render() {
             if (this.parentState.loading) {
-                this.el.innerHTML = `<div class="card_list__loader">Загрузка...</div>`;
+                this.el.innerHTML = `<div class="card_list__loader">Loading...</div>`;
                 return this.el;
             }
-
-            this.el.classList.add('card_list');
-            this.el.innerHTML = `
-            <h1>Найдено книг - ${this.parentState.numFound}</h1>
-        `;
+            const cardGrid = document.createElement('div');
+            cardGrid.classList.add('card_grid');
+            this.el.append(cardGrid);
             for (const card of this.parentState.list) {
-                this.el.append(new Card(this.appState, card).render());
+                cardGrid.append(new Card(this.appState, card).render());
             }
+            return this.el;
+        }
+    }
+
+    class FavoritesView extends AbstractView {
+        constructor(appState) {
+            super();
+            this.appState = appState;
+            this.appState = onChange(this.appState, this.appStateHook.bind(this));
+            this.setTitle('My books');
+        }
+
+        destroy() {
+            onChange.unsubscribe(this.appState);
+        }
+
+        appStateHook(path) {
+            if (path === 'favorites') {
+                this.render();
+            }
+        }
+
+        render() {
+            const main = document.createElement('div');
+            main.innerHTML = `
+            <h1>My books</h1>
+        `;
+            main.append(new CardList(this.appState, { list: this.appState.favorites }).render());
+            this.app.innerHTML = '';
+            this.app.append(main);
+            this.renderHeader();
+        }
+
+        renderHeader() {
+            const header = new Header(this.appState).render();
+            this.app.prepend(header);
+        }
+    }
+
+    class Search extends DivComponent {
+        constructor(state) {
+            super();
+            this.state = state;
+        }
+
+        search() {
+            const value = this.el.querySelector('input').value;
+            this.state.searchQuery = value;
+        }
+
+        render() {
+            this.el.classList.add('search');
+            this.el.innerHTML = `
+            <div class="search__wrapper">
+                <input class="search__input" type="text" placeholder="Find a book or author..." value="${this.state.searchQuery ? this.state.searchQuery : ''}"/>
+                <img src="/static/search.svg" alt="Search icon" />
+            </div>
+            <button aria-label="Искать">
+                <img src="/static/search-white.svg" alt="Search icon" />
+            </button>
+        `;
+            this.el.querySelector('button').addEventListener('click', this.search.bind(this));
+            this.el.querySelector('input').addEventListener('keydown', (event) => {
+                if (event.code === 'Enter') {
+                    this.search();
+                }
+            });
             return this.el;
         }
     }
@@ -1267,7 +1300,12 @@
             this.appState = appState;
             this.appState = onChange(this.appState, this.appStateHook.bind(this));
             this.state = onChange(this.state, this.stateHook.bind(this));
-            this.setTitle('Поиск книг');
+            this.setTitle('Book search');
+        }
+
+        destroy() {
+            onChange.unsubscribe(this.appState);
+            onChange.unsubscribe(this.state);
         }
 
         appStateHook(path) {
@@ -1296,6 +1334,9 @@
 
         render() {
             const main = document.createElement('div');
+            main.innerHTML = `
+            <h1>Books found - ${this.state.numFound}</h1>
+        `;
             main.append(new Search(this.state).render());
             main.append(new CardList(this.appState, this.state).render());
             this.app.innerHTML = '';
@@ -1311,7 +1352,8 @@
 
     class App {
         routes = [
-            { path: "", view: MainView }
+            { path: "", view: MainView },
+            { path: "#favorites", view: FavoritesView }
         ];
 
         appState = {
